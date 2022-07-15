@@ -1,86 +1,67 @@
 import tkinter as tk
 
 
-def insert_digits(digits):
-    value = calculator_input_filed.get() + str(digits)
-    if value[0]=='0':
+def add_digits(digit):
+    value = calculator_input_filed.get()+str(digit)
+    if value[0] =='0':
         value=value[1:]
     calculator_input_filed.delete(0, tk.END)
-    calculator_input_filed.insert(0, value+str(digits))
+    calculator_input_filed.insert(0,value+digit)
 
 
-def clear():
-    calculator_input_filed.delete(0, tk.END)
-    return calculator_input_filed.insert(0, str(0))
-
-
-def operation(operation):
+def add_operation(operation):
     value = calculator_input_filed.get()
-    if value[-1] in "+-/*":
+    if value[-1] =='+-*/':
         value=value[:-1]
-        calculator_input_filed.delete(0, tk.END)
-        calculator_input_filed.insert(0, value+operation)
+    calculator_input_filed.delete(0, tk.END)
+    calculator_input_filed.insert(0, value+operation)
 
-def button_digits(text, row, column, font, function):
-    return tk.Button(text=text, bd=5, font=font, command=function).grid(row=row, column=column, sticky="wens", padx=5,
-                                                                        pady=5)
+    if value[0] =='0':
+        value=value[:-1]
+        calculator_input_filed.insert(0,value)
 
-
-def operation_button(operation, row, column, font, function):
-    return tk.Button(text=operation, bd=5, font=font, command=function).grid(row=row, column=column, sticky="wens",
-                                                                             padx=5, pady=5)
+def make_button_digits(digit):
+    return tk.Button(text=digit,bd=5, font=('Arial', 14), command=lambda: add_digits(digit))
 
 
-def button_clear(text, row, column, font, function):
-    return tk.Button(text=text, bd=5, font=font, command=function).grid(row=row, column=column, sticky="wens", padx=5,
-                                                                        pady=5)
-
-
-def button_clear_all(text, row, column, font, function):
-    return tk.Button(text=text, bd=5, font=font, command=function).grid(row=row, column=column, sticky="wens", padx=5,
-                                                                        pady=5)
+def make_button_operation(operation):
+    return tk.Button(text=operation,bd=5, font=('Arial', 14), command=lambda: add_digits(operation))
 
 
 main_window = tk.Tk()
-main_window.title("Calculator")
-main_window.geometry(f"260x270+100+200")
-main_window["bg"] = "#00ffff"
+main_window.title('Calculator')
+main_window.geometry('270x280+100+200')
+main_window['bg'] = '#00ffff'
 main_window.resizable(False, False)
 
-calculator_input_filed = tk.Entry(main_window, font=15, justify=tk.RIGHT, bd=5, width=22)
-calculator_input_filed.insert(0, "0")
+calculator_input_filed = tk.Entry(main_window, bd=5,font=('Arial', 16), justify=tk.RIGHT)
+calculator_input_filed.insert(0, '0')
 calculator_input_filed.grid(row=0, column=0, columnspan=4, sticky="we", padx=5)
 
-button_digits(text="1", row=1, column=0, font=("Arial", 16), function=lambda: insert_digits(1))
-button_digits(text="2", row=1, column=1, font=("Arial", 16), function=lambda: insert_digits(2))
-button_digits(text="3", row=1, column=2, font=("Arial", 16), function=lambda: insert_digits(3))
-button_digits(text="4", row=2, column=0, font=("Arial", 16), function=lambda: insert_digits(4))
-button_digits(text="5", row=2, column=1, font=("Arial", 16), function=lambda: insert_digits(5))
-button_digits(text="6", row=2, column=2, font=("Arial", 16), function=lambda: insert_digits(6))
-button_digits(text="7", row=3, column=0, font=("Arial", 16), function=lambda: insert_digits(7))
-button_digits(text="8", row=3, column=1, font=("Arial", 16), function=lambda: insert_digits(8))
-button_digits(text="9", row=3, column=2, font=("Arial", 16), function=lambda: insert_digits(9))
-button_digits(text="0", row=4, column=0, font=("Arial", 16), function=lambda: insert_digits(0))
+make_button_digits(digit=1).grid(row=1,column=0,sticky="wens",padx=5,pady=5)
+make_button_digits(digit=2).grid(row=1,column=1,sticky="wens",padx=5,pady=5)
+make_button_digits(digit=3).grid(row=1,column=2,sticky="wens",padx=5,pady=5)
+make_button_digits(digit=4).grid(row=2,column=0,sticky="wens",padx=5,pady=5)
+make_button_digits(digit=5).grid(row=2,column=1,sticky="wens",padx=5,pady=5)
+make_button_digits(digit=6).grid(row=2,column=2,sticky="wens",padx=5,pady=5)
+make_button_digits(digit=7).grid(row=3,column=0,sticky="wens",padx=5,pady=5)
+make_button_digits(digit=8).grid(row=3,column=1,sticky="wens",padx=5,pady=5)
+make_button_digits(digit=9).grid(row=3,column=2,sticky="wens",padx=5,pady=5)
+make_button_digits(digit=0).grid(row=4,column=0,sticky="wens",padx=5,pady=5)
 
-operation_button(operation="+", row=1, column=3, font=("Arial", 16), function=lambda: operation("+"))
-operation_button(operation="-", row=2, column=3, font=("Arial", 16), function=lambda: operation("-"))
-operation_button(operation="x", row=3, column=3, font=("Arial", 16), function=lambda: operation("*"))
-operation_button(operation="÷", row=4, column=3, font=("Arial", 16), function=lambda: operation("/"))
+make_button_operation(operation='+').grid(row=1,column=3,sticky="wens",padx=5,pady=5)
+make_button_operation(operation='-').grid(row=2,column=3,sticky="wens",padx=5,pady=5)
+make_button_operation(operation='*').grid(row=3,column=3,sticky="wens",padx=5,pady=5)
+make_button_operation(operation='/').grid(row=4,column=3,sticky="wens",padx=5,pady=5)
 
-# operation_button(text="=", row=1, column=3, font=("Arial", 16), function=lambda: insert_digits("/"))
+main_window.columnconfigure(0,minsize=60)
+main_window.columnconfigure(1,minsize=60)
+main_window.columnconfigure(2,minsize=60)
+main_window.columnconfigure(3,minsize=60)
 
-button_clear(text="C", row=4, column=1, font=("Arial", 16), function=lambda: clear())
-# operation_button(text="-", row=2, column=3, font=("Arial", 16), function=lambda: insert_digits("-"))
-
-
-main_window.grid_columnconfigure(0, minsize=60)
-main_window.grid_columnconfigure(1, minsize=60)
-main_window.grid_columnconfigure(2, minsize=60)
-main_window.grid_columnconfigure(3, minsize=60)
-
-main_window.rowconfigure(1, minsize=60)
-main_window.rowconfigure(2, minsize=60)
-main_window.rowconfigure(3, minsize=60)
-main_window.rowconfigure(4, minsize=60)
+main_window.rowconfigure(1,minsize=60)
+main_window.rowconfigure(2,minsize=60)
+main_window.rowconfigure(3,minsize=60)
+main_window.rowconfigure(4,minsize=60)
 
 main_window.mainloop()

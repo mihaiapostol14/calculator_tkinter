@@ -10,8 +10,6 @@ class Window(Frame):
         self.calculator_input_filed.grid(row=0, column=0, columnspan=4, sticky="we", padx=5)
         self.buttons()
 
-
-
     def add_digits(self, digit):
         self.value = self.calculator_input_filed.get() + str(digit)
         if self.value[0] == '0':
@@ -19,34 +17,32 @@ class Window(Frame):
         self.calculator_input_filed.delete(0, END)
         self.calculator_input_filed.insert(0, self.value)
 
-    def add_operation(self,operation):
+    def add_operation(self, operation):
         self.value = self.calculator_input_filed.get()
-        if  self.value[-1] in '+-*/':
-            self.value =  self.value[:-1]
+        if self.value[-1] in '+-*/':
+            self.value = self.value[:-1]
         self.calculator_input_filed.delete(0, END)
-        self.calculator_input_filed.insert(0,  self.value + operation)
+        self.calculator_input_filed.insert(0, self.value + operation)
 
-        if  self.value[0] == '0':
-            self.value =  self.value[:-1]
-            self.calculator_input_filed.insert(0,  self.value)
-
+        if self.value[0] == '0':
+            self.value = self.value[:-1]
+            self.calculator_input_filed.insert(0, self.value)
 
     def clear(self):
         self.calculator_input_filed.delete(0, END)
-        self.calculator_input_filed.insert(0,'0')
+        self.calculator_input_filed.insert(0, '0')
 
     def calculate(self):
         self.calculator_input_filed.delete(0, END)
         self.calculator_input_filed.insert(0, eval(self.value))
         self.operation = self.value[-1]
-        if  self.value[-1] in '+-*/':
-            self.value =  self.value[:-1]+self.operation+self.value[:-1]
+        if self.value[-1] in '+-*/':
+            self.value = self.value[:-1] + self.operation + self.value[:-1]
 
-
-    def make_button_digits(self,digit):
+    def make_button_digits(self, digit):
         return Button(text=digit, bd=5, font=('Arial', 14), command=lambda: self.add_digits(digit))
 
-    def make_button_operation(self,operation):
+    def make_button_operation(self, operation):
         return Button(text=operation, bd=5, font=('Arial', 14), command=lambda: self.add_operation(operation))
 
     def make_button_clear(self, operation):
@@ -97,6 +93,7 @@ class App(Tk):
         self.rowconfigure(2, minsize=60)
         self.rowconfigure(3, minsize=60)
         self.rowconfigure(4, minsize=60)
+
 
 if __name__ == '__main__':
     app = App()

@@ -17,11 +17,11 @@ class Window(Frame):
         if self.value[0] == '0':
             self.value = self.value[1:]
         self.calculator_input_filed.delete(0, END)
-        self.calculator_input_filed.insert(0, self.value + digit)
+        self.calculator_input_filed.insert(0, self.value)
 
     def add_operation(self,operation):
         self.value = self.calculator_input_filed.get()
-        if  self.value[-1] == '+-*/':
+        if  self.value[-1] in '+-*/':
             self.value =  self.value[:-1]
         self.calculator_input_filed.delete(0, END)
         self.calculator_input_filed.insert(0,  self.value + operation)
@@ -31,11 +31,29 @@ class Window(Frame):
             self.calculator_input_filed.insert(0,  self.value)
 
 
+    def clear(self):
+        self.calculator_input_filed.delete(0, END)
+        self.calculator_input_filed.insert(0,'0')
+
+    def calculate(self):
+        self.calculator_input_filed.delete(0, END)
+        self.calculator_input_filed.insert(0, eval(self.value))
+        self.operation = self.value[-1]
+        if  self.value[-1] in '+-*/':
+            self.value =  self.value[:-1]+self.operation+self.value[:-1]
+
+
     def make_button_digits(self,digit):
         return Button(text=digit, bd=5, font=('Arial', 14), command=lambda: self.add_digits(digit))
 
     def make_button_operation(self,operation):
-        return Button(text=operation, bd=5, font=('Arial', 14), command=lambda: self.add_digits(operation))
+        return Button(text=operation, bd=5, font=('Arial', 14), command=lambda: self.add_operation(operation))
+
+    def make_button_clear(self, operation):
+        return Button(text=operation, bd=5, font=('Arial', 14), command=self.clear)
+
+    def make_button_calc(self, operation):
+        return Button(text=operation, bd=5, font=('Arial', 14), command=self.calculate)
 
     def buttons(self):
 
@@ -55,11 +73,16 @@ class Window(Frame):
         self.make_button_operation(operation='*').grid(row=3, column=3, sticky="wens", padx=5, pady=5)
         self.make_button_operation(operation='/').grid(row=4, column=3, sticky="wens", padx=5, pady=5)
 
+        self.make_button_clear(operation='C').grid(row=4, column=1, sticky="wens", padx=5, pady=5)
+
+        self.make_button_calc(operation='=').grid(row=4, column=2, sticky="wens", padx=5, pady=5)
+
 
 class App(Tk):
     def __init__(self):
         super().__init__()
 
+        self.iconbitmap('calculator.ico')
         self.title('Calculator')
         self.geometry('270x280+100+200')
         self['bg'] = '#00ffff'

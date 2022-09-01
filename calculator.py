@@ -1,14 +1,17 @@
 from tkinter import *
-
+from tkinter.messagebox import showinfo
 
 class Window(Frame):
     def __init__(self, window):
         super().__init__(window)
 
+        self.window = window
+
         self.calculator_input_filed = Entry(window, bd=5, font=('Arial', 16), justify=RIGHT)
         self.calculator_input_filed.insert(0, '0')
         self.calculator_input_filed.grid(row=0, column=0, columnspan=4, sticky="we", padx=5)
         self.buttons()
+        self.window.bind('<Key>', self.press_key)
 
     def add_digits(self, digit):
         self.value = self.calculator_input_filed.get() + str(digit)
@@ -28,16 +31,32 @@ class Window(Frame):
             self.value = self.value[:-1]
             self.calculator_input_filed.insert(0, self.value)
 
+    def press_key(self, event):
+        if event.char.isdigit():
+            self.add_digits(event.char)
+        elif event.char in '+-*/':
+            self.add_operation(event.char)
+        elif event.char =='\r':
+            self.calculate()
+
     def clear(self):
         self.calculator_input_filed.delete(0, END)
         self.calculator_input_filed.insert(0, '0')
 
     def calculate(self):
-        self.calculator_input_filed.delete(0, END)
-        self.calculator_input_filed.insert(0, eval(self.value))
         self.operation = self.value[-1]
         if self.value[-1] in '+-*/':
             self.value = self.value[:-1] + self.operation + self.value[:-1]
+
+        self.calculator_input_filed.delete(0, END)
+        try:
+            self.calculator_input_filed.insert(0, eval(self.value))
+        except(NameError,SyntaxError):
+            showinfo(title='Message'.upper(),message='You have entered symbols but no more numbers'.upper())
+            self.calculator_input_filed.insert(0, '0')
+        except ZeroDivisionError:
+            showinfo(title='Message'.upper(), message='0 on 0  not divide'.upper())
+            self.calculator_input_filed.insert(0, '0')
 
     def make_button_digits(self, digit):
         return Button(text=digit, bd=5, font=('Arial', 14), command=lambda: self.add_digits(digit))
@@ -74,7 +93,7 @@ class Window(Frame):
         self.make_button_calc(operation='=').grid(row=4, column=2, sticky="wens", padx=5, pady=5)
 
 
-class App(Tk):
+class App(Tk, Window):
     def __init__(self):
         super().__init__()
 

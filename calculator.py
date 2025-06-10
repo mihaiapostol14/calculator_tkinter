@@ -1,120 +1,109 @@
-from tkinter import *
+import customtkinter as ctk
 from tkinter.messagebox import showinfo
 
-class Window(Frame):
-    def __init__(self, window):
-        super().__init__(window)
+class CalculatorApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("Calculator")
+        self.geometry("320x420")
+        ctk.set_appearance_mode("light")
+        ctk.set_default_color_theme("blue")
 
-        self.window = window
+        self.configure(bg="#f5f6fa")
+        self.resizable(False, False)
+        self.iconbitmap(bitmap='calculator.ico')
 
-        self.calculator_input_filed = Entry(window, bd=5, font=('Arial', 16), justify=RIGHT)
-        self.calculator_input_filed.insert(0, '0')
-        self.calculator_input_filed.grid(row=0, column=0, columnspan=4, sticky="we", padx=5)
-        self.buttons()
-        self.window.bind('<Key>', self.press_key)
+        # Entry field
+        self.entry_var = ctk.StringVar(value="0")
+        self.entry = ctk.CTkEntry(
+            self,
+            textvariable=self.entry_var,
+            font=("Arial", 28),
+            width=280,
+            height=60,
+            corner_radius=10,
+            fg_color="#f5f6fa",
+            bg_color="#f5f6fa",
+            justify="right"
+        )
+        self.entry.grid(row=0, column=0, columnspan=4, padx=20, pady=(20, 10), sticky="nsew")
 
-    def add_digits(self, digit):
-        self.value = self.calculator_input_filed.get() + str(digit)
-        if self.value[0] == '0':
-            self.value = self.value[1:]
-        self.calculator_input_filed.delete(0, END)
-        self.calculator_input_filed.insert(0, self.value)
+        # Button frame
+        btn_frame = ctk.CTkFrame(self, fg_color="#dff9fb", corner_radius=15)
+        btn_frame.grid(row=1, column=0, columnspan=4, padx=20, pady=10, sticky="nsew")
 
-    def add_operation(self, operation):
-        self.value = self.calculator_input_filed.get()
-        if self.value[-1] in '+-*/':
-            self.value = self.value[:-1]
-        self.calculator_input_filed.delete(0, END)
-        self.calculator_input_filed.insert(0, self.value + operation)
+        self.create_buttons(btn_frame)
+        self.bind('<Key>', self.press_key)
 
-        if self.value[0] == '0':
-            self.value = self.value[:-1]
-            self.calculator_input_filed.insert(0, self.value)
+    def create_buttons(self, frame):
+        btn_cfg = {"width": 60, "height": 60, "corner_radius": 10, "font": ("Arial", 20)}
+        digits = [
+            ('7', 1, 0), ('8', 1, 1), ('9', 1, 2), ('/', 1, 3),
+            ('4', 2, 0), ('5', 2, 1), ('6', 2, 2), ('*', 2, 3),
+            ('1', 3, 0), ('2', 3, 1), ('3', 3, 2), ('-', 3, 3),
+            ('0', 4, 0), ('C', 4, 1), ('=', 4, 2), ('+', 4, 3)
+        ]
+        for (text, r, c) in digits:
+            if text.isdigit():
+                cmd = lambda x=text: self.add_digit(x)
+                color = "#2c9bf6"
+            elif text in "+-*/":
+                cmd = lambda x=text: self.add_operation(x)
+                color = "#686de0"
+            elif text == "C":
+                cmd = self.clear
+                color = "#eb4d4b"
+            else:  # '='
+                cmd = self.calculate
+                color = "#6ab04c"
+            b = ctk.CTkButton(
+                frame, text=text, command=cmd, fg_color=color, hover_color="#4be682", **btn_cfg
+            )
+            b.grid(row=r, column=c, padx=8, pady=8, sticky="nsew")
+
+        for i in range(4):
+            frame.grid_columnconfigure(i, weight=1)
+        for i in range(1, 5):
+            frame.grid_rowconfigure(i, weight=1)
+
+    def add_digit(self, digit):
+        value = self.entry_var.get()
+        if value == "0":
+            value = digit
+        else:
+            value += digit
+        self.entry_var.set(value)
+
+    def add_operation(self, op):
+        value = self.entry_var.get()
+        if value[-1] in "+-*/":
+            value = value[:-1]
+        self.entry_var.set(value + op)
+
+    def clear(self):
+        self.entry_var.set("0")
+
+    def calculate(self):
+        value = self.entry_var.get()
+        try:
+            if value[-1] in "+-*/":
+                value = value[:-1]
+            result = eval(value)
+            self.entry_var.set(str(result))
+        except Exception:
+            showinfo("ERROR", "Invalid Input")
+            self.entry_var.set("0")
 
     def press_key(self, event):
         if event.char.isdigit():
-            self.add_digits(event.char)
-        elif event.char in '+-*/':
+            self.add_digit(event.char)
+        elif event.char in "+-*/":
             self.add_operation(event.char)
-        elif event.char =='\r':
+        elif event.char == "\r":
             self.calculate()
+        elif event.char.lower() == 'c':
+            self.clear()
 
-    def clear(self):
-        self.calculator_input_filed.delete(0, END)
-        self.calculator_input_filed.insert(0, '0')
-
-    def calculate(self):
-        self.operation = self.value[-1]
-        if self.value[-1] in '+-*/':
-            self.value = self.value[:-1] + self.operation + self.value[:-1]
-
-        self.calculator_input_filed.delete(0, END)
-        try:
-            self.calculator_input_filed.insert(0, eval(self.value))
-        except(NameError,SyntaxError):
-            showinfo(title='Message'.upper(),message='You have entered symbols but no more numbers'.upper())
-            self.calculator_input_filed.insert(0, '0')
-        except ZeroDivisionError:
-            showinfo(title='Message'.upper(), message='0 on 0  not divide'.upper())
-            self.calculator_input_filed.insert(0, '0')
-
-    def make_button_digits(self, digit):
-        return Button(text=digit, bd=5, font=('Arial', 14), command=lambda: self.add_digits(digit))
-
-    def make_button_operation(self, operation):
-        return Button(text=operation, bd=5, font=('Arial', 14), command=lambda: self.add_operation(operation))
-
-    def make_button_clear(self, operation):
-        return Button(text=operation, bd=5, font=('Arial', 14), command=self.clear)
-
-    def make_button_calc(self, operation):
-        return Button(text=operation, bd=5, font=('Arial', 14), command=self.calculate)
-
-    def buttons(self):
-
-        self.make_button_digits(digit=1).grid(row=1, column=0, sticky="wens", padx=5, pady=5)
-        self.make_button_digits(digit=2).grid(row=1, column=1, sticky="wens", padx=5, pady=5)
-        self.make_button_digits(digit=3).grid(row=1, column=2, sticky="wens", padx=5, pady=5)
-        self.make_button_digits(digit=4).grid(row=2, column=0, sticky="wens", padx=5, pady=5)
-        self.make_button_digits(digit=5).grid(row=2, column=1, sticky="wens", padx=5, pady=5)
-        self.make_button_digits(digit=6).grid(row=2, column=2, sticky="wens", padx=5, pady=5)
-        self.make_button_digits(digit=7).grid(row=3, column=0, sticky="wens", padx=5, pady=5)
-        self.make_button_digits(digit=8).grid(row=3, column=1, sticky="wens", padx=5, pady=5)
-        self.make_button_digits(digit=9).grid(row=3, column=2, sticky="wens", padx=5, pady=5)
-        self.make_button_digits(digit=0).grid(row=4, column=0, sticky="wens", padx=5, pady=5)
-
-        self.make_button_operation(operation='+').grid(row=1, column=3, sticky="wens", padx=5, pady=5)
-        self.make_button_operation(operation='-').grid(row=2, column=3, sticky="wens", padx=5, pady=5)
-        self.make_button_operation(operation='*').grid(row=3, column=3, sticky="wens", padx=5, pady=5)
-        self.make_button_operation(operation='/').grid(row=4, column=3, sticky="wens", padx=5, pady=5)
-
-        self.make_button_clear(operation='C').grid(row=4, column=1, sticky="wens", padx=5, pady=5)
-
-        self.make_button_calc(operation='=').grid(row=4, column=2, sticky="wens", padx=5, pady=5)
-
-
-class App(Tk, Window):
-    def __init__(self):
-        super().__init__()
-
-        self.iconbitmap('calculator.ico')
-        self.title('Calculator')
-        self.geometry('270x280+100+200')
-        self['bg'] = '#00ffff'
-        self.resizable(False, False)
-
-        self.columnconfigure(0, minsize=60)
-        self.columnconfigure(1, minsize=60)
-        self.columnconfigure(2, minsize=60)
-        self.columnconfigure(3, minsize=60)
-
-        self.rowconfigure(1, minsize=60)
-        self.rowconfigure(2, minsize=60)
-        self.rowconfigure(3, minsize=60)
-        self.rowconfigure(4, minsize=60)
-
-
-if __name__ == '__main__':
-    app = App()
-    window = Window(app)
+if __name__ == "__main__":
+    app = CalculatorApp()
     app.mainloop()
